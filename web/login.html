@@ -1,0 +1,62 @@
+<html>
+
+	<head>
+		<title>Login</title>
+		<script type="text/javascript" src="static/javascripts/jquery-2.1.4.min.js"></script>
+		<script type="text/javascript" src="static/javascripts/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="static/stylesheets/bootstrap.min.css">
+		<link rel="stylesheet" href="static/stylesheets/login.css">
+	</head>
+
+	<body> 
+
+		<div class = "container">
+			<div class="wrapper">
+				
+				<div class="alert alert-warning" id="ErrorMessage" style="display: none;">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					<strong>Login incorrect!</strong>
+				</div>
+				
+				<form action="" method="post" name="LoginForm" id="LoginForm" class="form-signin">       
+					<h3 class="form-signin-heading">Sign In</h3>
+					<hr class="colorgraph"><br>
+
+					<input type="text" class="form-control" name="Username" id="Username" placeholder="Username" required="" autofocus="" />
+					<input type="password" class="form-control" name="Password" id="Password" placeholder="Password" required=""/>  
+
+					<button class="btn btn-lg btn-primary btn-block" name="Submit" value="Login" type="Submit">Login</button>  			
+				</form>			
+			</div>
+		</div>
+
+	</body>
+	
+	<script>
+		$(function() { //shorthand document.ready function
+		    $('#LoginForm').on('submit', function(e) {
+		        e.preventDefault();  //prevent form from submitting
+				
+				$('#ErrorMessage').css('display', 'none');
+				$("#Submit").attr("disabled", true);
+				
+				var request = $.ajax({
+					url: '/',
+					type: 'post',
+					data : {
+						'Username': $('#Username').val(),
+						'Password': $('#Password').val()
+					}
+				});
+				request.done(function (response, textStatus, jqXHR){
+					location.reload();
+				});
+				request.fail(function (){
+					$('#ErrorMessage').css('display', 'block');
+					$("#Submit").attr("disabled", false);
+				});
+		    });
+		});
+	</script>
+
+</html>

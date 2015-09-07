@@ -1,0 +1,254 @@
+html
+  head
+    title Login
+    script(type='text/javascript', src='/static/javascripts/jquery-2.1.4.min.js')
+    script(type='text/javascript', src='/static/javascripts/bootstrap.min.js')
+    script(type='text/javascript', src='/static/javascripts/moment.min.js')
+    script(type='text/javascript', src='/static/javascripts/bootstrap-datetimepicker.js')
+    link(rel='stylesheet', href='/static/stylesheets/bootstrap.min.css')
+    link(rel='stylesheet', href='/static/stylesheets/bootstrap-datetimepicker.css')
+    link(rel='stylesheet', href='/static/stylesheets/sticky-footer-navbar.css')
+  body
+    nav.navbar.navbar-default(style='margin: 10px;')
+      .container-fluid
+        // Brand and toggle get grouped for better mobile display
+        .navbar-header
+          button.navbar-toggle.collapsed(type='button', data-toggle='collapse', data-target='#bs-example-navbar-collapse-1', aria-expanded='false')
+            span.sr-only Toggle navigation
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          a.navbar-brand(href='/') System
+        // Collect the nav links, forms, and other content for toggling
+        #bs-example-navbar-collapse-1.collapse.navbar-collapse
+          ul.nav.navbar-nav
+            li
+              a(href='/stations') Stations
+            li.active
+              a(href='/users')
+                | Users
+                span.sr-only (current)
+            li
+              a(href='/groups') Groups
+          ul.nav.navbar-nav.navbar-right
+            li.dropdown
+              a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-haspopup='true', aria-expanded='false')
+                | 
+                strong #{username} 
+                span.caret
+              ul.dropdown-menu
+                li
+                  a(href='#') My account
+                li.divider(role='separator')
+                li
+                  a(href='/disconnect') Close session
+        // /.navbar-collapse
+      // /.container-fluid
+    .container(style='padding-bottom:100px;')
+      .panel.panel-default(style='margin-top:10px;')
+        // Default panel contents
+        .panel-heading(style='text-align:center;') 
+                                                  strong.h4 Registered users
+        // Table
+        table.table
+          thead
+            tr
+              th #
+              th Username
+              th First Name
+              th Last Name
+              th Date of birth
+              th Group
+          tbody
+            - var i = 1;
+            - for (var user in data)
+              tr
+                th(scope='row') #{i++}
+                td 
+                  a(href='#', data-toggle='modal', data-target='#myModal', data-params='{"username": "#{data[user].login}", "firstName": "#{data[user].data.name}", "lastName": "#{data[user].data.secondName}", "dateOfBirth": "#{data[user].data.dateOfBirth}", "group": "#{data[user].groups[0].groupName}"}') #{data[user].login}
+                td #{data[user].data.name}
+                td #{data[user].data.secondName}
+                - var d = new Date(data[user].data.dateOfBirth);
+                td #{d.getDate()}/#{d.getMonth()+1}/#{d.getFullYear()}
+                //td #{data[user].data.dateOfBirth}
+                td #{data[user].groups[0].groupName}
+      .button.btn.btn-primary.pull-right(type='button', data-toggle='modal', data-target='#myModal') Add user 
+      
+    #myModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel')
+      .modal-dialog(role='document')
+        .modal-content
+          .modal-header
+            button.close(type='button', data-dismiss='modal', aria-label='Close')
+              span(aria-hidden='true') ×
+            h4#myModalLabel.modal-title(style='text-align:center;') New user
+          .modal-body
+            .form-group
+              label.control-label(for='username') Username:
+              input#username.form-control(type='text')
+              br
+              label.control-label(for='firstName') First Name:
+              input#firstName.form-control(type='text')
+              br
+              label.control-label(for='lastName') Last Name:
+              input#lastName.form-control(type='text')
+              br
+              label#password.control-label(for='password') Password:
+              input#password.form-control(type='password')
+              br
+              label#password2.control-label(for='password2') Retype password:
+              input#password2.form-control(type='password')
+              br
+              label.control-label(for='dateOfBirth') Date of Birth:
+              #datetimepicker10.input-group.date
+                input#dateOfBirth.form-control(type='text')
+                span.input-group-addon
+                  span.glyphicon.glyphicon-calendar
+              script(type='text/javascript').
+                $(function () {
+                  $('#datetimepicker10').datetimepicker({
+                    viewMode: 'years',
+                    format: 'DD/MM/YYYY'
+                  });
+                });
+              br
+              label.control-label(for='group') Group:
+              select#group.form-control
+                option User
+                option Admin
+          .modal-footer
+            button#close.btn.btn-default(type='button', data-dismiss='modal') Cancel
+            button#addUser.btn.btn-primary(type='button') Save changes
+  include ./footer.jade
+  script. 
+    var addMode = true;
+    $(document).ready(function() {
+    
+      $('#myModal').on('show.bs.modal', function (event) {
+        var link = $(event.relatedTarget);
+        var modal = $(this);
+        var json = link.data('params');
+        if (json !== undefined) {
+          addMode = false;
+          modal.find('.modal-title').text(json.username);
+          modal.find('.modal-body input#username').val(json.username);
+          modal.find('.modal-body input#username').attr("disabled", true);
+          modal.find('.modal-body input#firstName').val(json.firstName);
+          modal.find('.modal-body input#firstName').attr("disabled", true);
+          modal.find('.modal-body input#lastName').val(json.lastName);
+          modal.find('.modal-body input#lastName').attr("disabled", true);
+          var d = new Date(json.dateOfBirth);
+          modal.find('.modal-body #datetimepicker10 input#dateOfBirth').val(d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear());
+          modal.find('.modal-body #datetimepicker10 input#dateOfBirth').attr("disabled", true);
+          modal.find('.modal-body #group').attr("disabled", true);
+          
+          modal.find('.modal-footer button#close').html('Close');
+          modal.find('.modal-footer button#addUser').html('Delete user');
+          modal.find('.modal-footer button#addUser').addClass("btn-danger");
+          
+          
+          modal.find('.modal-body label#password').hide();
+          modal.find('.modal-body input#password').hide();
+          modal.find('.modal-body label#password2').hide();
+          modal.find('.modal-body input#password2').hide();
+        } else {
+          addMode = true;
+          modal.find('.modal-title').text('New user');
+          modal.find('.modal-body input#username').val('');
+          modal.find('.modal-body input#username').attr("disabled", false);
+          modal.find('.modal-body input#firstName').val('');
+          modal.find('.modal-body input#firstName').attr("disabled", false);
+          modal.find('.modal-body input#lastName').val('');
+          modal.find('.modal-body input#lastName').attr("disabled", false);
+          modal.find('.modal-body input#password').val('');
+          modal.find('.modal-body input#password2').val('');
+          modal.find('.modal-body #datetimepicker10 input#dateOfBirth').val('');
+          modal.find('.modal-body #datetimepicker10 input#dateOfBirth').attr("disabled", false);
+          modal.find('.modal-body #group').attr("disabled", false);
+          
+          modal.find('.modal-footer button#close').html('Cancel');
+          modal.find('.modal-footer button#addUser').html('Save changes');
+          modal.find('.modal-footer button#addUser').removeClass("btn-danger");
+          
+          modal.find('.modal-body label#password').show();
+          modal.find('.modal-body input#password').show();
+          modal.find('.modal-body label#password2').show();
+          modal.find('.modal-body input#password2').show();
+        }
+      })
+     
+      $("#addUser").click(function() {
+        if (!addMode) {
+          $.ajax({
+            type: "DELETE",
+            url: "/users/" + $("#myModal").find('.modal-title').text(),
+            success: function (response) {  
+              window.location.reload();
+            },
+            error: function (e) {
+                alert("Bad request");
+            }
+          });
+        } else {
+          var username =  $("#myModal").find('.modal-body input#username').val();
+          if (username === "") {
+            alert("You must enter a unique username");
+            return;
+          }
+          var firstName =  $("#myModal").find('.modal-body input#firstName').val();
+          if (firstName === "") {
+            alert("You must enter a first name");
+            return;
+          }
+          var lastName =  $("#myModal").find('.modal-body input#lastName').val();
+          if (lastName === "") {
+            alert("You must enter a last name");
+            return;
+          }
+          var password =  $("#myModal").find('.modal-body input#password').val();
+          if (password === "" || password.length < 4) {
+            alert("You must enter a 4 characters password at least");
+            return;
+          }
+          var password2 =  $("#myModal").find('.modal-body input#password2').val();
+          if (password2 === "" || password2 != password) {
+            alert("Passwords must match");
+            return;
+          }
+          var dateOfBirth = $("#myModal").find('.modal-body #datetimepicker10 input#dateOfBirth').val();
+          if (dateOfBirth === "") {
+            alert("You must enter a date of birth");
+            return;
+          }
+          var group = $("#myModal").find('.modal-body #group').val();
+          if (group === "") {
+            alert("You must enter a group");
+            return;
+          }
+          
+          var user = {
+            'login' : username,
+            'firstName': firstName,
+            'lastName': lastName,
+            'password' : password,
+            'dateOfBirth': dateOfBirth,
+            'group': group
+          };
+          
+          $.ajax({
+            type: "POST",
+            url: "/users",
+            data: user,
+            success: function (response) {  
+              alert("User added!");
+              window.location.reload();
+            },
+            error: function (e) {
+                alert("Bad request");
+            }
+          });
+        }
+      });
+
+    });
+    
+    

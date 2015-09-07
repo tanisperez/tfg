@@ -1,0 +1,314 @@
+html
+  head
+    title Login
+    script(type='text/javascript', src='/static/javascripts/jquery-2.1.4.min.js')
+    script(type='text/javascript', src='/static/javascripts/bootstrap.min.js')
+    script(type='text/javascript', src='/static/javascripts/Chart.min.js')
+    link(rel='stylesheet', href='/static/stylesheets/bootstrap.min.css')
+    link(rel='stylesheet', href='/static/stylesheets/data.css')
+    link(rel='stylesheet', href='/static/stylesheets/sticky-footer-navbar.css')
+  body
+    nav.navbar.navbar-default(style='margin: 10px;')
+      .container-fluid
+        // Brand and toggle get grouped for better mobile display
+        .navbar-header
+          button.navbar-toggle.collapsed(type='button', data-toggle='collapse', data-target='#bs-example-navbar-collapse-1', aria-expanded='false')
+            span.sr-only Toggle navigation
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          a.navbar-brand(href='/') System
+        // Collect the nav links, forms, and other content for toggling
+        #bs-example-navbar-collapse-1.collapse.navbar-collapse
+          ul.nav.navbar-nav
+            li.active
+              a(href='/stations')
+                | Stations 
+                span.sr-only (current)
+            li
+              a(href='/users') Users
+            li
+              a(href='/groups') Groups
+          ul.nav.navbar-nav.navbar-right
+            li.dropdown
+              a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-haspopup='true', aria-expanded='false')
+                | 
+                strong #{username} 
+                span.caret
+              ul.dropdown-menu
+                li
+                  a(href='#') My account
+                li.divider(role='separator')
+                li
+                  a(href='/disconnect') Close session
+        // /.navbar-collapse
+      // /.container-fluid
+    - var noData = (JSON.stringify(data) === "[]");
+    .container(style='padding-bottom:100px;')
+      ul.nav.nav-tabs(style='margin-top:10px;')
+        li.active
+          a(data-toggle='tab', href='#chart') Chart
+        li
+          a(data-toggle='tab', href='#raw') Raw Data
+        li
+          a(data-toggle='tab', href='#settings') Settings
+      .tab-content(style='margin-top:10px;')
+        #chart.tab-pane.fade.in.active(style='text-align:center')
+          label.control-label(for='sampleSelector') #{station.data.location}:  
+          - if (!noData)
+            .btn-group(style='margin-left:10px;')
+              button.btn.btn-primary.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+                | Action 
+                span.caret
+              ul.dropdown-menu
+                - if (!noData)
+                  - for (var samplesField in data[0].samples[0])
+                    li
+                      a(href='#') #{samplesField}
+          br
+          canvas#myChart(width='800', height='400', style='padding-bottom:20px;')
+        #raw.tab-pane.fade(style='text-align:center;')
+          .panel.panel-default
+            // Default panel contents
+            .panel-heading 
+                           strong.h4 Samples
+            // Table
+            table#myTable.table
+              thead
+                tr
+                  - if (!noData)
+                    th
+                    th #
+                    th Sample Date
+                    - if (!noData)
+                      - for (var samplesField in data[0].samples[0])
+                        th #{samplesField}
+              tbody
+                if (!noData)
+                  - var i = 1;
+                  - for (var sample in data)
+                    tr
+                      th
+                        input(type='checkbox', data-id='#{data[sample]._id}')
+                      th(scope='row') #{i++}
+                      - var d = new Date(data[sample].sampleDate);
+                      td #{d.toLocaleString()}
+                      - for (var value in data[sample].samples[0])
+                        td #{data[sample].samples[0][value]}
+          if (noData)
+            button#deleteSamples.btn.btn-danger.pull-right(type='button', disabled) Delete samples
+          else
+            button#deleteSamples.btn.btn-danger.pull-right(type='button') Delete samples
+        #settings.tab-pane.fade
+          .form-group
+            .col-xs-4(style='margin-left: auto; margin-right: auto; float: none;')
+              label.control-label(for='mac') MAC:
+              input#mac.form-control(type='text', value='#{station.login}', disabled='disabled')
+              br
+              label.control-label(for='location') Location:
+              input#location.form-control(type='text', value='#{station.data.location}')
+              br
+              label.control-label(for='wifi') WiFi:
+              input#wifi.form-control(type='text', value='#{station.data.wifi}')
+              br
+              label.control-label(for='wifiPassword') WiFi password:
+              input#wifiPassword.form-control(type='text', value='#{station.data.wifiPassword}')
+              br
+              label.control-label(for='ip') REST Server IP:
+              input#ip.form-control(type='text', value='#{station.data.ip}')
+              br
+              label.control-label(for='port') REST Server port:
+              input#port.form-control(type='text', value='#{station.data.port}')
+              br
+              label.control-label(for='interval') Samples interval (in seconds, multiple of 8):
+              input#interval.form-control(type='text', value='#{station.data.interval}')
+              br
+              label.control-label(for='dateOfRegistration') Date of registration:
+              input#dateOfRegistration.form-control(type='text', value='#{station.data.dateOfRegistration}', disabled='disabled')
+              br
+              button#deleteStation.btn.btn-danger(type='button') Delete station
+              button#saveChanges.btn.btn-primary.pull-right(type='button') Save changes
+  include ./footer.jade
+  script.
+    var noData = !{noData};
+    
+    if (noData) {
+      var config = {
+          labels: [0, 1],
+          datasets: [
+            {
+              label: "",
+              fillColor: "rgba(151,187,205,0.2)",
+              strokeColor: "rgba(151,187,205,1)",
+              pointColor: "rgba(151,187,205,1)",
+              pointStrokeColor: "#fff",
+              pointHighlightFill: "#fff",
+              pointHighlightStroke: "rgba(151,187,205,1)",
+              data: [0]
+            }
+          ]
+        };
+        var ctx = document.getElementById("myChart").getContext("2d");
+        var myLineChart = new Chart(ctx).Line(config);
+    } else {
+      var tree = {};
+      var docs = !{JSON.stringify(data)};
+      
+      /* Create tree */
+      for (var doc in docs) {
+        for (var sample in docs[doc].samples[0]) {
+          if (tree[sample] === undefined) {
+            tree[sample] = {};
+            tree[sample].value = [docs[doc].samples[0][sample]];
+            var d = new Date(docs[doc].sampleDate);
+            tree[sample].sampleDate = [d.toLocaleString()];
+          } else {
+            tree[sample].value.push(docs[doc].samples[0][sample]);
+            var d = new Date(docs[doc].sampleDate);
+            tree[sample].sampleDate.push(d.toLocaleString());
+          }
+        }
+      }
+      
+      function getIndexOfTreeElement(element) {
+        for (var i = 0; i < Object.keys(tree).length; i++) {
+          if (Object.keys(tree)[i] === element)
+            return i;
+        }
+        
+        return -1;
+      }
+      
+      function showGraph(index) {
+        var config = {
+          labels: tree[Object.keys(tree)[index]].sampleDate,
+          datasets: [
+            {
+              label: Object.keys(tree)[index],
+              fillColor: "rgba(151,187,205,0.2)",
+              strokeColor: "rgba(151,187,205,1)",
+              pointColor: "rgba(151,187,205,1)",
+              pointStrokeColor: "#fff",
+              pointHighlightFill: "#fff",
+              pointHighlightStroke: "rgba(151,187,205,1)",
+              data: tree[Object.keys(tree)[index]].value
+            }
+          ]
+        };
+      
+        var ctx = document.getElementById("myChart").getContext("2d");
+        var myLineChart = new Chart(ctx).Line(config);
+      }
+      
+      showGraph(0);
+  
+      $('.dropdown-menu li a').parents('.btn-group').find('.dropdown-toggle').html(Object.keys(tree)[0] + ' <span class="caret"></span>');
+  
+      $('.dropdown-menu li a').click(function(){
+        var selText = $(this).text();
+        $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
+        showGraph(getIndexOfTreeElement(selText));
+      });
+      
+      $('#deleteSamples').click(function() {
+        var selected = 0;
+        
+        $('#raw #mytable').find('tr').each(function () {
+            var row = $(this);
+            var checkbox = row.find('input[type="checkbox"]');
+            var num = 0;
+            if (checkbox.is(':checked')){
+              selected++;
+              $.ajax({
+                async: false,
+                type: "DELETE",
+                url: "/stations/#{station.login}/data/" + checkbox.data('id'),
+                success: function (response) {  
+                  num++;
+                },
+                /*statusCode: {
+                    403: function() {
+                       // if your server return 403 status code then only it comes in this block. :-)
+                        alert("Username already exist");
+                    }
+                },*/
+                error: function (e) {
+                    alert("Bad request");
+                }
+              });
+                
+            }
+            
+            if (num > 0)
+              window.location.reload();
+        });
+        if (selected == 0)
+          alert("Select the sample to delete");
+      });
+    }
+    
+    $('#deleteStation').click(function() {
+      if (confirm("Are you sure you want to delete the station?")) {
+          $.ajax({
+            type: "DELETE",
+            url: "/stations/#{station.login}",
+            success: function (response) {  
+              window.location.replace("/stations");
+            },
+            error: function (e) {
+                alert("Bad request");
+            }
+          });
+      }
+    });
+    
+    $('#saveChanges').click(function() {
+      var location = $('#settings').find('input#location').val();
+      if (location === "") {
+        alert("You must enter a location");
+        return;
+      }
+      var wifi = $('#settings').find('input#wifi').val();
+      if (wifi === "") {
+        alert("You must enter a WiFi BSSID");
+        return;
+      }
+      var wifiPassword = $('#settings').find('input#wifiPassword').val();
+      if (wifiPassword === "") {
+        alert("You must enter a WiFi password");
+        return;
+      }
+      var ip = $('#settings').find('input#ip').val();
+      if (ip === "") {
+        alert("You must enter a REST server ip");
+        return;
+      }
+      var port = parseInt($('#settings').find('input#port').val());
+      if (isNaN(port) || port <= 0 || port > 65535) {
+        alert("You must enter a valid port");
+        return;
+      }
+      var interval = parseInt($('#settings').find('input#interval').val());
+      if (isNaN(interval) || interval % 8 !== 0 || interval < 8) {
+        alert("You must enter a valid samples interval");
+        return;
+      }
+      
+      var stationSettings = {"data": {"location": location, "wifi": wifi, "wifiPassword": wifiPassword, "ip": ip, "port": port, "interval": interval}};
+
+      $.ajax({
+        type: "PUT",
+        url: "/stations/#{station.login}",
+        data: JSON.stringify(stationSettings),
+        contentType: 'application/json',
+        success: function (response) {  
+          window.location.reload();
+        },
+        error: function (e) {
+            alert("Bad request");
+        }
+      });
+      
+    });
+    
+    

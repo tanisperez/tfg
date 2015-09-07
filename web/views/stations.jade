@@ -1,0 +1,175 @@
+html
+  head
+    title Login
+    script(type='text/javascript', src='/static/javascripts/jquery-2.1.4.min.js')
+    script(type='text/javascript', src='/static/javascripts/bootstrap.min.js')
+    link(rel='stylesheet', href='/static/stylesheets/bootstrap.min.css')
+    link(rel='stylesheet', href='/static/stylesheets/sticky-footer-navbar.css')
+  body
+    nav.navbar.navbar-default(style='margin: 10px;')
+      .container-fluid
+        // Brand and toggle get grouped for better mobile display
+        .navbar-header
+          button.navbar-toggle.collapsed(type='button', data-toggle='collapse', data-target='#bs-example-navbar-collapse-1', aria-expanded='false')
+            span.sr-only Toggle navigation
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          a.navbar-brand(href='/') System
+        // Collect the nav links, forms, and other content for toggling
+        #bs-example-navbar-collapse-1.collapse.navbar-collapse
+          ul.nav.navbar-nav
+            li.active
+              a(href='/stations')
+                | Stations 
+                span.sr-only (current)
+            li
+              a(href='/users') Users
+            li
+              a(href='/groups') Groups
+          ul.nav.navbar-nav.navbar-right
+            li.dropdown
+              a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-haspopup='true', aria-expanded='false')
+                | 
+                strong #{username} 
+                span.caret
+              ul.dropdown-menu
+                li
+                  a(href='#') My account
+                li.divider(role='separator')
+                li
+                  a(href='/disconnect') Close session
+        // /.navbar-collapse
+      // /.container-fluid
+    .container(style='padding-bottom:100px;')
+      .panel.panel-default(style='margin-top:10px;')
+        // Default panel contents
+        .panel-heading(style='text-align:center;')
+                                                  strong.h4 Stations
+        // Table
+        table.table
+          thead
+            tr
+              th #
+              th Station
+              th Location
+              th Date of Registration
+          tbody
+            - var i = 1;
+            - for (var station in data)
+              tr
+                th(scope='row') #{i++}
+                td 
+                  a(href='/stations/#{data[station].login}') #{data[station].login}
+                td #{data[station].data.location}
+                - var d = new Date(data[station].data.dateOfRegistration);
+                td #{d.getDate()}/#{d.getMonth()+1}/#{d.getFullYear()}
+      .button.btn.btn-primary.pull-right(type='button', data-toggle='modal', data-target='#myModal') Add station
+      
+    #myModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel')
+      .modal-dialog(role='document')
+        .modal-content
+          .modal-header
+            button.close(type='button', data-dismiss='modal', aria-label='Close')
+              span(aria-hidden='true') ×
+            h4#myModalLabel.modal-title(style='text-align:center;') Register station
+          .modal-body
+            .form-group
+              label.control-label(for='mac') MAC:
+              input#mac.form-control(type='text')
+              br
+              label.control-label(for='location') Location:
+              input#location.form-control(type='text')
+              br
+              label.control-label(for='wifi') WiFi:
+              input#wifi.form-control(type='text')
+              br
+              label.control-label(for='wifiPassword') WiFi password:
+              input#wifiPassword.form-control(type='text')
+              br
+              label.control-label(for='ip') REST Server IP:
+              input#ip.form-control(type='text')
+              br
+              label.control-label(for='port') REST Server port:
+              input#port.form-control(type='text')
+              br
+              label.control-label(for='interval') Samples interval (in seconds, multiple of 8):
+              input#interval.form-control(type='text')
+          .modal-footer
+            button#close.btn.btn-default(type='button', data-dismiss='modal') Cancel
+            button#addStation.btn.btn-primary(type='button') Save changes
+  include ./footer.jade
+  script.
+    $(document).ready(function() {
+    
+      /* Clear input texts */
+      $('#myModal').on('show.bs.modal', function (event) {
+        $("#myModal").find('.modal-body input#mac').val('');
+        $("#myModal").find('.modal-body input#location').val('');
+        $("#myModal").find('.modal-body input#wifi').val('');
+        $("#myModal").find('.modal-body input#wifiPassword').val('');
+        $("#myModal").find('.modal-body input#ip').val('192.168.0.1');
+        $("#myModal").find('.modal-body input#port').val('3000');
+        $("#myModal").find('.modal-body input#interval').val('64');
+      });
+     
+     
+      $("#addStation").click(function() {
+        var MAC = $("#myModal").find('.modal-body input#mac').val();
+        if (MAC === "") {
+          alert("You must enter a valid MAC");
+          return;
+        }
+        var location = $("#myModal").find('.modal-body input#location').val();
+        if (location === "") {
+          alert("You must enter a location");
+          return;
+        }
+        var wifi = $("#myModal").find('.modal-body input#wifi').val();
+        if (wifi === "") {
+          alert("You must enter the WiFi BSSID");
+          return;
+        }
+        var wifiPassword = $("#myModal").find('.modal-body input#wifiPassword').val();
+        if (wifiPassword === "") {
+          alert("You must enter the WiFi password");
+          return;
+        }
+        var ip = $("#myModal").find('.modal-body input#ip').val();
+        if (ip === "") {
+          alert("You must enter the REST Server IP");
+          return;
+        }
+        var port = parseInt($("#myModal").find('.modal-body input#port').val());
+        if (isNaN(port) || port <= 0 || port > 65535) {
+          alert("You must enter a valid port");
+          return;
+        }
+        var interval = parseInt($("#myModal").find('.modal-body input#interval').val());
+        if (isNaN(interval) || interval % 8 !== 0 || interval < 8) {
+          alert("You must enter a valid samples interval");
+          return;
+        }
+  
+        var station = {'login': MAC, 'location': location, 'wifi': wifi, 'wifiPassword': wifiPassword, 'ip': ip, 'port': port, 'interval': interval};
+        $.ajax({
+          type: "POST",
+          url: "/stations",
+          data: station,
+          success: function (response) {  
+            alert("Station added!");
+            window.location.reload();
+          },
+          /*statusCode: {
+              403: function() {
+                 // if your server return 403 status code then only it comes in this block. :-)
+                  alert("Username already exist");
+              }
+          },*/
+          error: function (e) {
+              alert("Bad request");
+          }
+        });
+      });
+      
+    });
