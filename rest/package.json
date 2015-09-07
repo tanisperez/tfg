@@ -1,0 +1,19 @@
+{
+  "name": "REST-service",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "test": "node install-test.js && mocha tests/v1/*.js"
+  },
+  "dependencies": {
+    "body-parser": "~1.12.0",
+    "debug": "~2.1.1",
+    "express": "~4.12.2",
+    "mongoose": ">=4.0.2",
+    "scribe-js": ">=0.0.9",
+    "http-auth": ">=2.2.5",
+    "mocha": ">=2.2.5",
+    "supertest": ">=1.0.1"
+  }
+}
