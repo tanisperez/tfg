@@ -18,5 +18,5 @@ http://zserge.com/jsmn.html
 * En la carpeta **schemas/** se encuentran esquemas del montaje físico de la estación meteorológica y de sus componentes para las pruebas.
 * En la carpeta **photos/** se pueden encontra imágenes de la estación meteorológica.
 
-![Prueba](/station/CC3000/schemas/schema2.png) 
+![Schema](/station/CC3000/schemas/schema2.png) 
 
