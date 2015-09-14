@@ -1,3 +1,9 @@
+/**
+ * Código fuente de la estación meteorológica.
+ * Estanislao R. Pérez Nartallo
+ *
+ * Este código es Software Libre bajo la licencia GPLv3 (ver archivo LICENSE).
+ */
 #include <Adafruit_CC3000.h>
 #include <Adafruit_BMP085.h>
 #include <DHT.h>
@@ -12,11 +18,12 @@
 
 #define EEPROM_SETTINGS_ADDRESS      0x00
 //#define EDIT_EEPROM
+//Enable EDIT_EEPROM to edit the EEPROM settings values.
 
 #ifdef EDIT_EEPROM
-  #define WIFI              "WIFI_BSSID"
-  #define WIFI_PASSWORD     "password"
-  #define REST_IP           "192.168.0.20"
+  #define WIFI              "tfg"
+  #define WIFI_PASSWORD     "zonazona"
+  #define REST_IP           "192.168.0.100"
   #define REST_PORT         3000
   #define SAMPLES_INTERVAL  16
 #endif
@@ -184,7 +191,7 @@ void loop(void)
 }
 
 /**
- * Core of the system.
+ * Monitor function
  */
 void monitor()
 {
@@ -205,7 +212,6 @@ void monitor()
  
   /* Attempt to connect to an access point */
   if (cc3000.connectToAP(settings.wifi, settings.wifiPassword, WLAN_SEC_WPA2)) {  
-    
       /* Wait for DHCP to complete */
     while(!cc3000.checkDHCP())
     {
@@ -311,7 +317,7 @@ void getStationInfo(Adafruit_CC3000 &cc3000)
 
     jsmn_init(&p);
     r = jsmn_parse(&p, json, strlen(json), t, sizeof(t)/sizeof(t[0]));
-    char temp[16];
+    char temp[24];
     bool newSettings = false;
     for (int i = 1; i < r; i++) {
         if (jsoneq(json, &t[i], "wifi") == 0) {
@@ -319,7 +325,7 @@ void getStationInfo(Adafruit_CC3000 &cc3000)
           temp[t[i+1].end-t[i+1].start] = '\0';
           if (strncmp(settings.wifi, temp, sizeof(settings.wifi)) != 0) {
             strncpy(settings.wifi, temp, sizeof(settings.wifi));
-            DEBUGPRINTLN_F("Wifi modificado!");
+            DEBUGPRINTLN_F("Wifi modified!");
             newSettings = true;
           }
 	  i++;
@@ -329,7 +335,7 @@ void getStationInfo(Adafruit_CC3000 &cc3000)
           temp[t[i+1].end-t[i+1].start] = '\0';
           if (strncmp(settings.wifiPassword, temp, sizeof(settings.wifiPassword)) != 0) {
             strncpy(settings.wifiPassword, temp, sizeof(settings.wifiPassword));
-            DEBUGPRINTLN_F("wifiPassword modificado!");
+            DEBUGPRINTLN_F("wifiPassword modified!");
             newSettings = true;
           }
 	  i++;
@@ -339,7 +345,7 @@ void getStationInfo(Adafruit_CC3000 &cc3000)
           temp[t[i+1].end-t[i+1].start] = '\0';
           if (strncmp(settings.restIP, temp, sizeof(settings.restIP)) != 0) {
             strncpy(settings.restIP, temp, sizeof(settings.restIP));
-            DEBUGPRINTLN_F("restIP modificado!");
+            DEBUGPRINTLN_F("restIP modified!");
             newSettings = true;
           }
 	  i++;
@@ -350,7 +356,7 @@ void getStationInfo(Adafruit_CC3000 &cc3000)
           pos = strtol(temp, NULL, 10);
           if (settings.restPort != pos) {
             settings.restPort = pos;
-            DEBUGPRINTLN_F("restPort modificado!");
+            DEBUGPRINTLN_F("restPort modified!");
             newSettings = true;
           }
 	  i++;
@@ -363,7 +369,7 @@ void getStationInfo(Adafruit_CC3000 &cc3000)
             settings.samplesInterval = pos;
             sleepIterations = settings.samplesInterval >> 3;
             maxSleepIterations = sleepIterations;
-            DEBUGPRINTLN_F("samplesInterval modificado!");
+            DEBUGPRINTLN_F("samplesInterval modified!");
             newSettings = true;
           }
 	  i++;
@@ -378,7 +384,10 @@ void getStationInfo(Adafruit_CC3000 &cc3000)
 }
 
 /**
- *
+ * Find a JSON field name in the JSON string.
+ * @parans json        JSON string.
+ * @params tok         Array of jsmntok_t structs to store JSON items.
+ * @params s           JSON field name to find.
  */
 int jsoneq(const char *json, jsmntok_t *tok, const char *s) 
 {
