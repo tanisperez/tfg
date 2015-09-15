@@ -17,7 +17,7 @@ var console = process.console;
  */
 exports.logger = function(tag, method, httpCode, req, user) {
 	console.tag(tag, method, httpCode).log(req.originalUrl, 
-		{'ip' : req.ip, 'user' : user['login'], 'headers' : req.headers, 'body' : req.body});
+		{'ip' : req.ip, 'user' : (user != null) ? user['login'] : '', 'headers' : req.headers, 'body' : req.body});
 };
 
 /**

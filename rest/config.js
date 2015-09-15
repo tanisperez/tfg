@@ -1,3 +1,7 @@
+/**
+ * Config module.
+ * @module config
+ */
 var config = {}
 
 config.version = {};

@@ -62,7 +62,8 @@ describe('Users tests', function() {
               
             User.Person
       				.find({'_type' : 'Person'})
-      				.populate({path: 'groups'})
+              .populate({path: 'groups'})
+              .select("-password -_id -_type")
       				.exec(function(err, users) {
       					if (err)
                   done(err);
@@ -85,6 +86,7 @@ describe('Users tests', function() {
             User.Person
       				.find({'_type' : 'Person'})
       				.populate({path: 'groups'})
+              .select("-password -_id -_type")
       				.exec(function(err, users) {
       					if (err)
                   done(err);
@@ -532,8 +534,8 @@ describe('Users tests', function() {
           .end(function (err, res) {
             if (err)
               done(err);
-              
-            done();
+            else  
+              done();
           });
       });
       
@@ -545,8 +547,8 @@ describe('Users tests', function() {
           .end(function (err, res) {
             if (err)
               done(err);
-              
-            done();
+            else 
+              done();
           });
       });
       
@@ -563,8 +565,8 @@ describe('Users tests', function() {
           .end(function (err, res) {
             if (err)
               done(err);
-              
-            done();
+            else  
+              done();
           });
       });
       
@@ -576,8 +578,8 @@ describe('Users tests', function() {
           .end(function (err, res) {
             if (err)
               done(err);
-              
-            done();
+            else
+              done();
           });
       });
       
@@ -640,7 +642,8 @@ describe('Users tests', function() {
           .end(function(err, res) {
               if (err)
                 done(err);
-            done();
+              else
+                done();
           });
       });
       
@@ -652,7 +655,8 @@ describe('Users tests', function() {
           .end(function(err, res) {
               if (err)
                 done(err);
-            done();
+              else
+                done();
           });
       });
       
@@ -669,8 +673,8 @@ describe('Users tests', function() {
           .end(function (err, res) {
             if (err)
               done(err);
-              
-            done();
+            else
+              done();
           });
       });
       
@@ -682,8 +686,8 @@ describe('Users tests', function() {
           .end(function (err, res) {
             if (err)
               done(err);
-              
-            done();
+            else
+              done();
           });
       });
       
@@ -700,8 +704,8 @@ describe('Users tests', function() {
           .end(function (err, res) {
             if (err)
               done(err);
-              
-            done();
+            else
+              done();
           });
       });
       
@@ -713,8 +717,8 @@ describe('Users tests', function() {
           .end(function (err, res) {
             if (err)
               done(err);
-              
-            done();
+            else  
+              done();
           });
       });
       

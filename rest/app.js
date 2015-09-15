@@ -1,3 +1,11 @@
+/**
+ * Rest Service main file
+ * Estanislao R. Pérez Nartallo
+ * 
+ * This source code is under GPLv3 license.
+ * https://github.com/tanisperez/tfg
+ */
+
 var express = require('express');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');

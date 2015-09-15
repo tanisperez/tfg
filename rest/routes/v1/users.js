@@ -24,6 +24,7 @@ router.route('/users')
 				User.Person
 				.find({'_type' : 'Person'})
 				.populate({path: 'groups'})
+				.select("-password -_id -_type")
 				.exec(function(err, users) {
 					if (err) {
 						res.sendStatus(500); // 500 Internal Server Error
@@ -84,11 +85,17 @@ router.route('/users/:login')
 	 * 404 Not Found				The specified user doesn't exist.
 	 */
 	.put(function(req, res) {
-		utils.login(req, res, function(user) {
-			if (utils.validateUserPrivileges(user, [0, 1])) {
-				utils.userExists(req.params.login, function(exists) {
-					if (exists) {
-						if (user.login === req.params.login) {
+		utils.login(req, res, function(userLogin) {
+			if (utils.validateUserPrivileges(userLogin, [0, 1])) {
+				User.Person
+				.findOne({'login' : req.params.login})
+				.exec(function (err, user) {
+					if (err || user == null) {
+						res.sendStatus(404); // 404 Not Found
+						utils.logger('INFO', req.method, 404, req, user);
+					}
+					else {
+						if (userLogin.login === req.params.login) {
 							if (req.body.password != null) {
 								user.password = req.body.password;
 							}
@@ -119,14 +126,11 @@ router.route('/users/:login')
 							res.sendStatus(403); // 403 Forbidden
 							utils.logger('WARNING', req.method, 403, req, user);
 						}
-					} else {
-						res.sendStatus(404); // 404 Not Found
-						utils.logger('INFO', req.method, 404, req, user);
 					}
 				});
 			} else {
 				res.sendStatus(403); // 403 Forbidden
-				utils.logger('WARNING', req.method, 403, req, user);
+				utils.logger('WARNING', req.method, 403, req, userLogin);
 			}
 		});
 	})
