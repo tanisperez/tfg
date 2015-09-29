@@ -1,12 +1,12 @@
-# Sistema autónomo de monitorización meteorológica con emisión de informes periódicos
+## Sistema autónomo de monitorización meteorológica con emisión de informes periódicos
 
 En este repositorio se encuentra el Trabajo de Fin de Grado realizado por Estanislao Ramón Pérez Nartallo y dirigido por José Antonio García Naya. Aquí se encuentra la memoria del proyecto, junto con todo el código fuente y los esquemas empleados.
 
-# Software libre
+## Software libre
 
 El software desarrollado está disponible bajo la licencia GLPv3 (ver archivo LICENSE) lo que permite a cualquiera que lo desee consultar, modificar o emplear cualquier parte del proyecto según sus necesidades, respetando siempre las condiciones de la licencia.
 
-# Resumen del proyecto
+## Resumen del proyecto
 
 En este Trabajo de Fin de Grado se ha construido una estación meteorológica que recoge datos de sus sensores y los envía a un servidor mediante conectividad WiFi.
 Para el desarrollo del trabajo se ha empleado una metodología incremental basada en iteraciones:
