@@ -1,4 +1,4 @@
-# Estación meteorologica
+## Estación meteorologica
 
 El software de la estación meteorológica contiene librerías desarrolladas por otros autores. En este repositorio no se provee dichas librerías, pero pueden ser descagadas desde las páginas de los respectivos autores:
 
@@ -13,7 +13,7 @@ https://github.com/adamvr/arduino-base64
 * **JSMN JSON Library by zserge**
 http://zserge.com/jsmn.html
 
-# Directorios
+## Directorios
 
 * En la carpeta **schemas/** se encuentran esquemas del montaje físico de la estación meteorológica y de sus componentes para las pruebas.
 * En la carpeta **photos/** se pueden encontra imágenes de la estación meteorológica.
